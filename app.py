@@ -36,7 +36,7 @@ def index():
         phone = request.form['phone']
         
         frequency = int(day)*24*60 + int(hour)*60 + int(minute) 
-        
+
 
         # Save the notification settings to the database
         cursor.execute('''
@@ -94,13 +94,13 @@ if __name__ == '__main__':
     rows = cursor.fetchall()
 
     # Start the scheduler for each saved notification
-    # scheduler = BackgroundScheduler()
+    scheduler = BackgroundScheduler()
     for row in rows:
         ticker = row[0]
         threshold = row[1]
         frequency = row[2]
         notification_type = row[3]
-    #     scheduler.add_job(check_price, 'interval', [ticker, threshold, notification_type], minutes=frequency)
-    # scheduler.start()
+        scheduler.add_job(check_price, 'interval', [ticker, threshold, notification_type], minutes=frequency)
+    scheduler.start()
 
     app.run()
