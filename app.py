@@ -4,6 +4,10 @@ from flask import Flask, request, render_template
 from apscheduler.schedulers.background import BackgroundScheduler
 import smtplib
 from flask_cors import CORS, cross_origin
+
+# import requests
+
+
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -86,6 +90,22 @@ def send_notification(notification_type, ticker, price, email, phone):
 
     elif notification_type == 'text':
         # Send a text message notification
+#         def send_message():
+#   resp = requests.post('http://textbelt.com/text', {
+#     'phone': '00000000000',
+#     'message': 'Good Morning',
+#     'key': 'textbelt'
+#   })
+
+#   print(resp.json())
+
+#   schedule.every().day.at('06:00').do(send_message)
+
+#   #schedule.every(10).seconds.do(send_message)
+
+#   while True:
+#     schedule.run_pending()
+#     time.sleep(1)
         pass
 
 if __name__ == '__main__':
