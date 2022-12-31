@@ -3,9 +3,10 @@ import sqlite3
 from flask import Flask, request, render_template
 from apscheduler.schedulers.background import BackgroundScheduler
 import smtplib
-
+from flask_cors import CORS, cross_origin
 app = Flask(__name__)
-
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 # Connect to the database
 conn = sqlite3.connect('notifications.db',check_same_thread=False)
 cursor = conn.cursor()
@@ -37,7 +38,6 @@ def index():
         
         frequency = int(day)*24*60 + int(hour)*60 + int(minute) 
 
-
         # Save the notification settings to the database
         cursor.execute('''
             INSERT INTO notifications1 (ticker, threshold, email, phone, frequency, notification_type)
@@ -49,14 +49,17 @@ def index():
     else:
         return render_template('index.html')
 
-def check_price(ticker, threshold, notification_type):
+
+def check_price(ticker, threshold, notification_type, email, phone):
     # Retrieve the current price of the stock using the yfinance library
     stock = yf.Ticker(ticker).info
     price = stock['regularMarketPrice']
 
+
     # If the price reaches or exceeds the threshold, send a notification
     if price >= threshold:
-        send_notification(notification_type, ticker, price)
+        send_notification(notification_type, ticker, price, email, phone)
+    return price
 
 def send_notification(notification_type, ticker, price, email, phone):
     if notification_type == 'email':
@@ -95,12 +98,10 @@ if __name__ == '__main__':
 
     # Start the scheduler for each saved notification
     scheduler = BackgroundScheduler()
+   
     for row in rows:
-        ticker = row[0]
-        threshold = row[1]
-        frequency = row[2]
-        notification_type = row[3]
-        scheduler.add_job(check_price, 'interval', [ticker, threshold, notification_type], minutes=frequency)
+        ticker, threshold, email, phone, frequency, notification_type = row
+        scheduler.add_job(check_price, 'interval', [ticker, threshold, notification_type, email, phone], minutes=frequency)
     scheduler.start()
 
     app.run()

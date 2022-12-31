@@ -19,7 +19,7 @@
         <div class="row">
           <div class="col-lg"></div>
           <div class="col-sm">
-            <form method="POST">
+            <form onsubmit="return mySubmit(event)">
                 <div class="form-group">
                   <label for="email_address">Email address</label>
                   <input type="email" class="form-control" id="email_address" name="email_address" aria-describedby="emailHelp" placeholder="Enter email">
@@ -84,5 +84,29 @@
           <div class="col-lg"></div>
         </div>
       </div>
+
+      <script>
+        function mySubmit(e){
+          console.log("Test");
+          console.log("e",e);
+          e.preventDefault();
+          try{
+            fetch("/",{
+              method: "POST",
+              body: new FormData(e.target),
+            }).then((res) => {
+              e.target.reset();
+              alert("You will be emailed in the given email in the interval you have set");
+            }).catch((err) =>{
+              console.log(err);
+              alert('something went wrong')
+            })
+          } catch(e){
+            throw new Error(e.message);
+          }
+          return false;
+        }
+      </script>
+
 </body>
 </html>
